@@ -13,7 +13,7 @@ app.use(cors())
 app.use(express.json())
 
 
-const client = new MongoClient(process.env.DB_CONNECTION_ARI);
+const client = new MongoClient(process.env.MONGODB_URI);
 
 
 export async function connectToMongoDB() {
@@ -29,6 +29,7 @@ export async function connectToMongoDB() {
 const connectedDB = await connectToMongoDB()
 const db = connectedDB.db("wonder-lust")
 const destinition = db.collection("destinition")
+const bookings = db.collection("bookings")
 
 
 app.post("/add-destinition", async(req, res) => {
@@ -74,6 +75,26 @@ app.delete("/destination/:id", async(req, res) => {
     const result = await destinition.deleteOne({_id : new ObjectId(id)})
     res.send(result)
 
+})
+
+app.post("/booking", async(req, res) => {
+    const allData = req.body
+
+    const result = await bookings.insertOne(allData)
+    res.send(result)
+})
+
+app.get("/booking/:email", async(req, res) =>{
+    const {email} = req.params
+    const result = await bookings.find({email : email}).toArray()
+    res.send(result)
+})
+
+app.delete("/booking/:id", async(req, res) => {
+
+    const id = req.params.id
+    const result = await bookings.deleteOne({_id : new ObjectId(id)})
+    res.send(result)
 })
 
 
